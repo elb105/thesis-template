@@ -22,7 +22,7 @@
 | Folder | Contents |
 |---|---|
 | [`src/`](src/) | Firmware and software |
-| [`hardware/`](hardware/) | Hardware releases: PDF schematics, Gerbers, BOM, 3D views |
+| [`hardware/`](hardware/) | Hardware releases: design files, PDF schematics, Gerbers, BOM, 3D views |
 | [`docs/`](docs/) | Report, figures, presentation, [handover sheet](docs/handover.md) |
 | [`notes/`](notes/) | Optional notes: meetings, logbook, literature (Obsidian vault) |
 

@@ -57,7 +57,7 @@ Thumbs.db
 desktop.ini
 ~$*
 
-# Altium temp files (design sources live in Altium 365, not here)
+# Altium temp files (working projects live in Altium 365; only release snapshots are committed)
 History/
 __Previews/
 Project Logs for */

@@ -97,7 +97,8 @@ hardware one, and the README "License" section lists all of them.
 
 - Default suggestion: MIT + CERN-OHL-P-2.0 + CC BY 4.0. Choose the copyleft column if derivatives must stay open.
 - The report PDF deposited in Archivo Digital UPM usually carries CC BY-NC-ND 4.0; the copy here can match it.
-- Only Altium *outputs* are published, so CERN-OHL governs reuse of those outputs, not of the design sources.
+- Each hardware release includes its Altium design files, so CERN-OHL applies in full: with `-W` or `-S`, anyone
+  who distributes a modified board must publish their modified sources.
 - Get a licence text: `gh api licenses/mit --jq .body > LICENSE` (also `apache-2.0`, `gpl-3.0`, `lgpl-3.0`, `mpl-2.0`, `cc-by-4.0`, `cc-by-sa-4.0`).
   CERN-OHL texts: <https://spdx.org/licenses/CERN-OHL-P-2.0.html> (and `-W-`, `-S-`).
 - A thesis inside a funded or industrial project may have IP terms that override all of this.
@@ -110,6 +111,7 @@ hardware one, and the README "License" section lists all of them.
   git rev-list --objects --all | git cat-file --batch-check='%(objecttype) %(objectsize) %(rest)' | awk '$1=="blob"' | sort -k2 -n | tail -20
   ```
 - [ ] **Third-party files**: no datasheets, NDA documents, paywalled papers, or vendor code with an incompatible licence.
+  Check the hardware `-source.zip` files too: component libraries and 3D models must allow redistribution.
 - [ ] **Notes**: read `notes/` (meetings especially): factual, no personal data, no candid comments about people.
 - [ ] **Links**: Overleaf links are read-only.
 - [ ] **Handover**: `docs/handover.md` complete, tested by another rookie, no personal contact data.
