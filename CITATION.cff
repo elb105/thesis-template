@@ -1,0 +1,32 @@
+# Replace every <placeholder>. Before publication set `license` (and `doi` if you get one from Zenodo).
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: software
+title: "<Thesis title>"
+abstract: "<One-paragraph abstract>"
+authors:
+  - family-names: "<Surname(s)>"
+    given-names: "<Name>"
+    affiliation: "B105 Electronic Systems Lab, Information Processing and Telecommunications Center, Universidad Politécnica de Madrid, ETSI Telecomunicación, Av. Complutense, 30, 28040 Madrid, Spain"
+    # orcid: "https://orcid.org/0000-0000-0000-0000"
+repository-code: "https://github.com/elb105/<repo>"
+keywords:
+  - "<keyword>"
+# license: "<SPDX id of the code licence, e.g. MIT>"
+# doi: "<10.5281/zenodo.xxxxxxx>"
+preferred-citation:
+  type: thesis
+  thesis-type: "<Bachelor's thesis (TFG) | Master's thesis (TFM)>"
+  title: "<Thesis title>"
+  authors:
+    - family-names: "<Surname(s)>"
+      given-names: "<Name>"
+      affiliation: "B105 Electronic Systems Lab, Information Processing and Telecommunications Center, Universidad Politécnica de Madrid, ETSI Telecomunicación, Av. Complutense, 30, 28040 Madrid, Spain"
+  year: 2027 # <- year of the defense
+  institution:
+    name: "ETSI Telecomunicación, Universidad Politécnica de Madrid" # change if your degree belongs to another school
+    address: "Av. Complutense, 30"
+    city: "Madrid"
+    post-code: "28040"
+    country: "ES"
+  url: "https://github.com/elb105/<repo>"

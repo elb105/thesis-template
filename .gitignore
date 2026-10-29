@@ -1,0 +1,81 @@
+# Secrets (see README: never commit credentials)
+.env
+secrets.h
+
+# Build outputs (C/C++, STM32CubeIDE, Keil, PlatformIO, ESP-IDF, CMake)
+build/
+[Dd]ebug/
+[Rr]elease/
+Objects/
+Listings/
+.pio/
+sdkconfig.old
+*.o
+*.obj
+*.d
+*.su
+*.elf
+*.map
+*.lst
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# MATLAB / Simulink
+*.asv
+*.autosave
+*.slxc
+slprj/
+
+# LaTeX (report built locally in docs/)
+docs/**/*.aux
+docs/**/*.bbl
+docs/**/*.blg
+docs/**/*.fdb_latexmk
+docs/**/*.fls
+docs/**/*.log
+docs/**/*.out
+docs/**/*.synctex.gz
+docs/**/*.toc
+
+# IDEs (keep shared VS Code debug/build config)
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+.metadata/
+
+# OS and Office
+.DS_Store
+Thumbs.db
+desktop.ini
+~$*
+
+# Altium temp files (design sources live in Altium 365, not here)
+History/
+__Previews/
+Project Logs for */
+*.SchDocPreview
+*.PcbDocPreview
+
+# KiCad temp files
+*-backups/
+*.kicad_prl
+fp-info-cache
+_autosave-*
+*.lck
+*.bak
+
+# Obsidian: share only the vault settings, not per-user state
+notes/.obsidian/*
+!notes/.obsidian/app.json
+!notes/.obsidian/templates.json
+!notes/.obsidian/daily-notes.json
+notes/.trash/
+/.obsidian/
