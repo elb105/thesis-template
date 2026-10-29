@@ -1,6 +1,8 @@
 # Supervisor setup
 
-For the tutor, not the student. Commands are bash (Git Bash on Windows) and use the [GitHub CLI](https://cli.github.com) (`gh auth login` once).
+For the tutor, not the student. Commands use the [GitHub CLI](https://cli.github.com) (`gh auth login` once) and are bash:
+in Git Bash, replace the example values and paste each block whole. Section 3 also has a PowerShell version;
+section 4 needs Git Bash.
 
 ## 1. Naming convention
 
@@ -21,8 +23,7 @@ The template itself has `template`, `teaching`, `b105`.
 From this folder, on `main`:
 
 ```bash
-gh repo create elb105/thesis-template --public --source . --push \
-  --description "Template for B105 TFG/TFM repositories"
+gh repo create elb105/thesis-template --public --source . --push --description "Template for B105 TFG/TFM repositories"
 git push origin develop
 gh repo edit elb105/thesis-template --template --add-topic template,teaching,b105
 ```
@@ -32,12 +33,21 @@ gh repo edit elb105/thesis-template --template --add-topic template,teaching,b10
 ```bash
 REPO=tfm-2026-jgarcia-lora-mesh
 TYPE=tfm
-STUDENT=<github-username>
+STUDENT=github-username
 
-gh repo create elb105/$REPO --private --template elb105/thesis-template --include-all-branches \
-  --description "TFM: <title> (B105, UPM)"
+gh repo create elb105/$REPO --private --template elb105/thesis-template --include-all-branches --description "TFM: Thesis title (B105, UPM)"
 # If the next command says develop doesn't exist yet, wait a few seconds and rerun it.
 gh repo edit elb105/$REPO --default-branch develop --add-topic $TYPE,b105,teaching,thesis
+gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
+```
+
+PowerShell: variables need `$`, and the topic list needs quotes (unquoted commas split it into separate arguments).
+Run the lines in the same window, since the variables only live there.
+
+```powershell
+$REPO = "tfm-2026-jgarcia-lora-mesh"; $TYPE = "tfm"; $STUDENT = "github-username"
+gh repo create elb105/$REPO --private --template elb105/thesis-template --include-all-branches --description "TFM: Thesis title (B105, UPM)"
+gh repo edit elb105/$REPO --default-branch develop --add-topic "$TYPE,b105,teaching,thesis"
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
 ```
 
@@ -51,21 +61,35 @@ Use the same command (on the student's repository) to let another rookie test th
 
 ## 4. When the student is ready (Level 2)
 
-One block: requires a pull request to `develop` (no approval needed) and to `main` (1 approval), and blocks deleting
-or force-pushing both. Repository and organization admins can bypass, so you are never locked out.
+Until now the student can push anything to any branch (Level 1). These two GitHub **rulesets** switch on Level 2:
+
+| Branch | After this step |
+|---|---|
+| `develop` | No direct pushes: changes arrive through a pull request, which the student can merge without approval. |
+| `main` | No direct pushes: pull requests need **your** approval before they can be merged. |
+| both | Can't be deleted or force-pushed (protects the history). |
+
+You (repo and org admin) can bypass both rules, so you are never locked out.
+
+In Git Bash, set the repository name, then paste each block whole, from `gh api` to `EOF`.
+Each block sends one rule definition (the JSON) to GitHub; the two differ only in the branch and the number of approvals.
 
 ```bash
-for spec in develop:0 main:1; do
-  branch=${spec%:*}; reviews=${spec#*:}
-  gh api -X POST repos/elb105/$REPO/rulesets --input - <<EOF
+REPO=tfm-2026-jgarcia-lora-mesh
+```
+
+**Rule 1: `develop` needs a pull request (0 approvals)**
+
+```bash
+gh api -X POST repos/elb105/$REPO/rulesets --input - <<'EOF'
 {
-  "name": "$branch: pull request required",
+  "name": "develop: pull request required",
   "target": "branch",
   "enforcement": "active",
-  "conditions": {"ref_name": {"include": ["refs/heads/$branch"], "exclude": []}},
+  "conditions": {"ref_name": {"include": ["refs/heads/develop"], "exclude": []}},
   "rules": [
     {"type": "pull_request", "parameters": {
-      "required_approving_review_count": $reviews,
+      "required_approving_review_count": 0,
       "dismiss_stale_reviews_on_push": false,
       "require_code_owner_review": false,
       "require_last_push_approval": false,
@@ -79,10 +103,37 @@ for spec in develop:0 main:1; do
   ]
 }
 EOF
-done
 ```
 
-To undo: `gh api repos/elb105/$REPO/rulesets` lists them; `gh api -X DELETE repos/elb105/$REPO/rulesets/<id>` removes one.
+**Rule 2: `main` needs a pull request with 1 approval**
+
+```bash
+gh api -X POST repos/elb105/$REPO/rulesets --input - <<'EOF'
+{
+  "name": "main: pull request and approval required",
+  "target": "branch",
+  "enforcement": "active",
+  "conditions": {"ref_name": {"include": ["refs/heads/main"], "exclude": []}},
+  "rules": [
+    {"type": "pull_request", "parameters": {
+      "required_approving_review_count": 1,
+      "dismiss_stale_reviews_on_push": false,
+      "require_code_owner_review": false,
+      "require_last_push_approval": false,
+      "required_review_thread_resolution": false}},
+    {"type": "deletion"},
+    {"type": "non_fast_forward"}
+  ],
+  "bypass_actors": [
+    {"actor_id": 5, "actor_type": "RepositoryRole", "bypass_mode": "always"},
+    {"actor_id": 1, "actor_type": "OrganizationAdmin", "bypass_mode": "always"}
+  ]
+}
+EOF
+```
+
+**Check or undo:** on github.com, the repository's Settings → Rules → Rulesets shows both rules; you can switch them off
+or delete them there.
 
 ## 5. Licence options
 
