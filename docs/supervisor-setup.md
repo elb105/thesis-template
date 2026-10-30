@@ -29,8 +29,8 @@ gh repo edit elb105/thesis-template --template --add-topic template,teaching,b10
 
 ## 3. New student repository
 
-The template has only `main`; `develop` is created here from `main`'s first commit, so both branches share
-one history.
+The commands fill in the README and `CITATION.cff` placeholders with the values below (one commit per file on `main`).
+The template has only `main`; `develop` is then created from it, so both branches share one history.
 
 First create the variables 
 ```bash
@@ -38,12 +38,33 @@ REPO=tfm-2026-jgarcia-lora-mesh
 TYPE=tfm
 STUDENT=github-username
 TITLE="Thesis title"
+NAME="Juan"
+SURNAME="García López"
+TUTORS="Name Surname, Name Surname"
+DEGREE="Máster Universitario en Ingeniería de Telecomunicación"
+YEAR="2026-2027"
 ```
 then create the repo
 ```bash
 gh repo create elb105/$REPO --private --template elb105/thesis-template --description "${TYPE^^}: $TITLE. B105 Electronic Systems Lab, Information Processing and Telecommunications Center, Universidad Politécnica de Madrid"
 # GitHub needs a few seconds to copy the template: this waits until main exists.
 until SHA=$(gh api repos/elb105/$REPO/commits/main --jq .sha 2>/dev/null); do sleep 2; done
+[ $TYPE = tfg ] && KIND="Bachelor's thesis (TFG)" || KIND="Master's thesis (TFM)"
+for FILE in README.md CITATION.cff; do
+  TEXT=$(gh api repos/elb105/$REPO/contents/$FILE --jq .content | base64 -d)
+  TEXT=${TEXT//"<Thesis title>"/"$TITLE"}
+  TEXT=${TEXT//"<Name Surname> ([@github-user](https://github.com/github-user))"/"$NAME $SURNAME ([@$STUDENT](https://github.com/$STUDENT))"}
+  TEXT=${TEXT//"<Name Surname>, <Name Surname>"/"$TUTORS"}
+  TEXT=${TEXT//"<TFG / TFM>"/"${TYPE^^}"}
+  TEXT=${TEXT//"<Degree name>"/"$DEGREE"}
+  TEXT=${TEXT//"<academic year>"/"$YEAR"}
+  TEXT=${TEXT//"<Name>"/"$NAME"}
+  TEXT=${TEXT//"<Surname(s)>"/"$SURNAME"}
+  TEXT=${TEXT//"<repo>"/"$REPO"}
+  TEXT=${TEXT//"<Bachelor's thesis (TFG) | Master's thesis (TFM)>"/"$KIND"}
+  BLOB=$(gh api repos/elb105/$REPO/contents/$FILE --jq .sha)
+  SHA=$(gh api -X PUT repos/elb105/$REPO/contents/$FILE -f message="Fill in $FILE" -f sha=$BLOB -f content="$(base64 -w0 <<<"$TEXT")" --jq .commit.sha)
+done
 gh api repos/elb105/$REPO/git/refs -f ref=refs/heads/develop -f sha=$SHA
 gh repo edit elb105/$REPO --default-branch develop --add-topic $TYPE,b105,teaching,thesis
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
@@ -57,11 +78,29 @@ Run the lines in the same window, since the variables only live there.
 First set the variables:
 ```powershell
 $REPO = "tfm-2026-jgarcia-lora-mesh"; $TYPE = "tfm"; $STUDENT = "github-username"; $TITLE = "Thesis title"
+$NAME = "Juan"; $SURNAME = "García López"; $TUTORS = "Name Surname, Name Surname"
+$DEGREE = "Máster Universitario en Ingeniería de Telecomunicación"; $YEAR = "2026-2027"
 ```
 Then create the repo
 ```powershell
 gh repo create elb105/$REPO --private --template elb105/thesis-template --description "$($TYPE.ToUpper()): $TITLE. B105 Electronic Systems Lab, Information Processing and Telecommunications Center, Universidad Politécnica de Madrid"
 do { Start-Sleep 2; $SHA = gh api repos/elb105/$REPO/commits/main --jq .sha 2>$null } until ($LASTEXITCODE -eq 0)
+$KIND = if ($TYPE -eq "tfg") { "Bachelor's thesis (TFG)" } else { "Master's thesis (TFM)" }
+foreach ($FILE in "README.md", "CITATION.cff") {
+  $TEXT = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String((gh api repos/elb105/$REPO/contents/$FILE --jq .content) -join ""))
+  $TEXT = $TEXT.Replace("<Thesis title>", $TITLE)
+  $TEXT = $TEXT.Replace("<Name Surname> ([@github-user](https://github.com/github-user))", "$NAME $SURNAME ([@$STUDENT](https://github.com/$STUDENT))")
+  $TEXT = $TEXT.Replace("<Name Surname>, <Name Surname>", $TUTORS)
+  $TEXT = $TEXT.Replace("<TFG / TFM>", $TYPE.ToUpper())
+  $TEXT = $TEXT.Replace("<Degree name>", $DEGREE)
+  $TEXT = $TEXT.Replace("<academic year>", $YEAR)
+  $TEXT = $TEXT.Replace("<Name>", $NAME)
+  $TEXT = $TEXT.Replace("<Surname(s)>", $SURNAME)
+  $TEXT = $TEXT.Replace("<repo>", $REPO)
+  $TEXT = $TEXT.Replace("<Bachelor's thesis (TFG) | Master's thesis (TFM)>", $KIND)
+  $BLOB = gh api repos/elb105/$REPO/contents/$FILE --jq .sha
+  $SHA = gh api -X PUT repos/elb105/$REPO/contents/$FILE -f "message=Fill in $FILE" -f "sha=$BLOB" -f "content=$([Convert]::ToBase64String([Text.Encoding]::UTF8.GetBytes($TEXT)))" --jq .commit.sha
+}
 gh api repos/elb105/$REPO/git/refs -f ref=refs/heads/develop -f sha=$SHA
 gh repo edit elb105/$REPO --default-branch develop --add-topic "$TYPE,b105,teaching,thesis"
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
