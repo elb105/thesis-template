@@ -1,4 +1,4 @@
-<!-- Replace every <placeholder> and delete this comment. Tutor: see docs/supervisor-setup.md -->
+<!-- Replace every <placeholder> and delete this comment. -->
 
 # <Thesis title>
 
@@ -27,6 +27,7 @@
 | [`notes/`](notes/) | Optional notes: meetings, logbook, literature (Obsidian vault) |
 
 New to Git? Start with [CONTRIBUTING.md](CONTRIBUTING.md).
+Tutors: repository setup, rulesets and publication steps are in [docs/supervisor-setup.md](docs/supervisor-setup.md).
 
 ## This repository will be public
 
