@@ -24,19 +24,23 @@ From this folder, on `main`:
 
 ```bash
 gh repo create elb105/thesis-template --public --source . --push --description "Template for B105 TFG/TFM repositories"
-git push origin develop
 gh repo edit elb105/thesis-template --template --add-topic template,teaching,b105
 ```
 
 ## 3. New student repository
+
+The template has only `main`; `develop` is created here from `main`'s first commit, so both branches share
+one history.
 
 ```bash
 REPO=tfm-2026-jgarcia-lora-mesh
 TYPE=tfm
 STUDENT=github-username
 
-gh repo create elb105/$REPO --private --template elb105/thesis-template --include-all-branches --description "TFM: Thesis title (B105, UPM)"
-# If the next command says develop doesn't exist yet, wait a few seconds and rerun it.
+gh repo create elb105/$REPO --private --template elb105/thesis-template --description "TFM: Thesis title (B105, UPM)"
+# If the next command says "Not Found", GitHub is still copying the template: wait a few seconds and rerun it.
+SHA=$(gh api repos/elb105/$REPO/commits/main --jq .sha)
+gh api repos/elb105/$REPO/git/refs -f ref=refs/heads/develop -f sha=$SHA
 gh repo edit elb105/$REPO --default-branch develop --add-topic $TYPE,b105,teaching,thesis
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
 ```
@@ -46,7 +50,9 @@ Run the lines in the same window, since the variables only live there.
 
 ```powershell
 $REPO = "tfm-2026-jgarcia-lora-mesh"; $TYPE = "tfm"; $STUDENT = "github-username"
-gh repo create elb105/$REPO --private --template elb105/thesis-template --include-all-branches --description "TFM: Thesis title (B105, UPM)"
+gh repo create elb105/$REPO --private --template elb105/thesis-template --description "TFM: Thesis title (B105, UPM)"
+$SHA = gh api repos/elb105/$REPO/commits/main --jq .sha
+gh api repos/elb105/$REPO/git/refs -f ref=refs/heads/develop -f sha=$SHA
 gh repo edit elb105/$REPO --default-branch develop --add-topic "$TYPE,b105,teaching,thesis"
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
 ```
