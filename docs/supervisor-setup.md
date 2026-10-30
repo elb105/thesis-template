@@ -32,38 +32,47 @@ gh repo edit elb105/thesis-template --template --add-topic template,teaching,b10
 The template has only `main`; `develop` is created here from `main`'s first commit, so both branches share
 one history.
 
+First create the variables 
 ```bash
 REPO=tfm-2026-jgarcia-lora-mesh
 TYPE=tfm
 STUDENT=github-username
-
-gh repo create elb105/$REPO --private --template elb105/thesis-template --description "TFM: Thesis title (B105, UPM)"
-# If the next command says "Not Found", GitHub is still copying the template: wait a few seconds and rerun it.
-SHA=$(gh api repos/elb105/$REPO/commits/main --jq .sha)
+TITLE="Thesis title"
+```
+then create the repo
+```bash
+gh repo create elb105/$REPO --private --template elb105/thesis-template --description "${TYPE^^}: $TITLE. B105 Electronic Systems Lab, Information Processing and Telecommunications Center, Universidad Politécnica de Madrid"
+# GitHub needs a few seconds to copy the template: this waits until main exists.
+until SHA=$(gh api repos/elb105/$REPO/commits/main --jq .sha 2>/dev/null); do sleep 2; done
 gh api repos/elb105/$REPO/git/refs -f ref=refs/heads/develop -f sha=$SHA
 gh repo edit elb105/$REPO --default-branch develop --add-topic $TYPE,b105,teaching,thesis
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
+# Rookies team: the student joins it, and every rookie can read (not change) this repository.
+gh api -X PUT orgs/elb105/teams/b105-rookies/memberships/$STUDENT -f role=member
+gh api -X PUT orgs/elb105/teams/b105-rookies/repos/elb105/$REPO -f permission=pull
 ```
 
 PowerShell: variables need `$`, and the topic list needs quotes (unquoted commas split it into separate arguments).
 Run the lines in the same window, since the variables only live there.
-
+First set the variables:
 ```powershell
-$REPO = "tfm-2026-jgarcia-lora-mesh"; $TYPE = "tfm"; $STUDENT = "github-username"
-gh repo create elb105/$REPO --private --template elb105/thesis-template --description "TFM: Thesis title (B105, UPM)"
-$SHA = gh api repos/elb105/$REPO/commits/main --jq .sha
+$REPO = "tfm-2026-jgarcia-lora-mesh"; $TYPE = "tfm"; $STUDENT = "github-username"; $TITLE = "Thesis title"
+```
+Then create the repo
+```powershell
+gh repo create elb105/$REPO --private --template elb105/thesis-template --description "$($TYPE.ToUpper()): $TITLE. B105 Electronic Systems Lab, Information Processing and Telecommunications Center, Universidad Politécnica de Madrid"
+do { Start-Sleep 2; $SHA = gh api repos/elb105/$REPO/commits/main --jq .sha 2>$null } until ($LASTEXITCODE -eq 0)
 gh api repos/elb105/$REPO/git/refs -f ref=refs/heads/develop -f sha=$SHA
 gh repo edit elb105/$REPO --default-branch develop --add-topic "$TYPE,b105,teaching,thesis"
 gh api -X PUT repos/elb105/$REPO/collaborators/$STUDENT -f permission=push
+gh api -X PUT orgs/elb105/teams/b105-rookies/memberships/$STUDENT -f role=member
+gh api -X PUT orgs/elb105/teams/b105-rookies/repos/elb105/$REPO -f permission=pull
 ```
 
-If the thesis continues a previous one, give the student read access to it so they can follow its `docs/handover.md`:
-
-```bash
-gh api -X PUT repos/elb105/<previous-repo>/collaborators/$STUDENT -f permission=pull
-```
-
-Use the same command (on the student's repository) to let another rookie test the handover sheet before the defense.
+The `b105-rookies` team has read access to every thesis repository, so rookies can follow a previous student's
+`docs/handover.md` and test each other's before the defense. The student keeps write access to their own repository.
+If the student isn't an `elb105` member yet, joining the team sends them an invitation to the organization.
+When a student leaves the lab, remove them from the team.
 
 ## 4. When the student is ready (Level 2)
 
